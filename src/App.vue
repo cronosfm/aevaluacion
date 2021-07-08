@@ -3,30 +3,31 @@
     <div>
       <Button
         v-bind:style="{ 'background-color': colores[0].color }"
-        @click="activar(0)"
+        @click="intentar(0)"
       ></Button>
+      <h1>PUNTOS: {{ puntaje }}</h1>
       <Button
         v-bind:style="{ 'background-color': colores[1].color }"
-        @click="activar(1)"
+        @click="intentar(1)"
       ></Button>
     </div>
     <div>
       <div></div>
       <Button
         v-bind:style="{ 'background-color': colores[2].color }"
-        @click="activar(2)"
+        @click="intentar(2)"
       ></Button>
       <div></div>
     </div>
     <div>
       <Button
         v-bind:style="{ 'background-color': colores[3].color }"
-        @click="activar(3)"
+        @click="intentar(3)"
       ></Button>
       <Button id="button" v-on:Click="crearSecuencia"> Iniciar </Button>
       <Button
         v-bind:style="{ 'background-color': colores[4].color }"
-        @click="activar(4)"
+        @click="intentar(4)"
       ></Button>
     </div>
   </div>
@@ -38,6 +39,8 @@ export default {
   data() {
     return {
       secuencia: [],
+      intento: 0,
+      puntaje: 0,
       colores: [
         { id: 0, color: "#FFFFFF" },
         { id: 1, color: "#FFFFFF" },
@@ -74,17 +77,39 @@ export default {
       }
       return auxColor;
     },
+    intentar(value) {
+      if (value == this.secuencia[this.intento]) {
+        this.activar(value);
+        this.puntaje++;
+        this.intento++;
+        if (this.intento == 5) {
+          setTimeout(() => {
+            this.crearSecuencia();
+          }, 2000);
+        }
+      } else {
+        alert("perdiste con " + this.puntaje);
+        this.reset();
+      }
+    },
+    reset() {
+      this.puntaje = 0;
+      this.intento = 0;
+      this.secuencia = [];
+    },
     async activar(value) {
       var auxColor = await this.getColor(value);
       this.colores[value].color = auxColor;
-      setInterval(() => {
+      setTimeout(() => {
         this.colores[value].color = "#FFFFFF";
-      }, 1000);
+      }, 500);
     },
     crearSecuencia() {
+      this.intento = 0;
       this.secuencia = [];
       for (let index = 0; index < 5; index++) {
         var rnd = Math.floor(Math.random() * (4 - 0)) + 0;
+        console.log(rnd);
         this.secuencia.push(rnd);
       }
       this.comenzarRonda();
@@ -93,15 +118,11 @@ export default {
       console.log(this.secuencia);
       for (let index = 0; index < this.secuencia.length; index++) {
         const element = this.secuencia[index];
-        this.getColor(element).then((colornew) => {
-          setInterval(() => {
-            this.colores[element].color = colornew;
-            setInterval(() => {
-              
-              this.colores[element].color = "#FFFFFF";
-            }, 1000);
-          }, 1000);
-        });
+        setTimeout(() => {
+          console.log("posicion:" + index);
+          console.log("valor:" + element);
+          this.activar(element);
+        }, index * 1000);
       }
     },
   },
